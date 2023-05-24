@@ -12,7 +12,7 @@ import (
 
 var allowedExtensions = []string{".yaml", ".yml", ".json"}
 
-func ReadSources(filenames []string, images []string, tempDir string) ([]*unstructured.Unstructured, error) {
+func ReadSources(filenames []string, images []string, tempDir string, externalDataProviderFiles []string) ([]*unstructured.Unstructured, error) {
 	var sources []*source
 
 	// Read from --filename flag
@@ -26,6 +26,13 @@ func ReadSources(filenames []string, images []string, tempDir string) ([]*unstru
 	s, err = readImages(images, tempDir)
 	if err != nil {
 		return nil, fmt.Errorf("pulling image: %w", err)
+	}
+	sources = append(sources, s...)
+
+	// Read from --external-data-providers flag
+	s, err = readFiles(externalDataProviderFiles)
+	if err != nil {
+		return nil, fmt.Errorf("reading from filenames: %w", err)
 	}
 	sources = append(sources, s...)
 

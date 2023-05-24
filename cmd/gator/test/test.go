@@ -46,13 +46,14 @@ var Cmd = &cobra.Command{
 }
 
 var (
-	flagFilenames    []string
-	flagOutput       string
-	flagIncludeTrace bool
-	flagGatherStats  bool
-	flagImages       []string
-	flagTempDir      string
-	flagEnableK8sCel bool
+	flagFilenames             []string
+	flagOutput                string
+	flagIncludeTrace          bool
+	flagGatherStats           bool
+	flagExternalDataProviders []string
+	flagImages                []string
+	flagTempDir               string
+	flagEnableK8sCel          bool
 )
 
 const (
@@ -74,12 +75,13 @@ func init() {
 	Cmd.Flags().BoolVarP(&flagIncludeTrace, "trace", "t", false, "include a trace for the underlying Constraint Framework evaluation.")
 	Cmd.Flags().BoolVarP(&flagGatherStats, "stats", "", false, "include performance stats returned from the Constraint Framework.")
 	Cmd.Flags().BoolVarP(&flagEnableK8sCel, "experimental-enable-k8s-native-validation", "", false, "PROTOTYPE (not stable): enable the validating admission policy driver")
+	Cmd.Flags().StringArrayVarP(&flagExternalDataProviders, "external-data-providers", "", []string{}, "a file containing External Data Provider manifest. Can be specified multiple times.")
 	Cmd.Flags().StringArrayVarP(&flagImages, flagNameImage, "i", []string{}, "a URL to an OCI image containing policies. Can be specified multiple times.")
 	Cmd.Flags().StringVarP(&flagTempDir, flagNameTempDir, "d", "", fmt.Sprintf("Specifies the temporary directory to download and unpack images to, if using the --%s flag. Optional.", flagNameImage))
 }
 
 func run(cmd *cobra.Command, args []string) {
-	unstrucs, err := reader.ReadSources(flagFilenames, flagImages, flagTempDir)
+	unstrucs, err := reader.ReadSources(flagFilenames, flagImages, flagTempDir, flagExternalDataProviders)
 	if err != nil {
 		cmdutils.ErrFatalf("reading: %v", err)
 	}
